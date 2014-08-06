@@ -4,6 +4,7 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('../templates', __FILE__)
   #main argument is clone name
   argument :source_model, type: :string, default: nil, banner: "source_model model"
+  class_option :test_mode, :type => :boolean, :default => false, :desc => "Skip db:migration"
   check_class_collision # no suffix for model
   check_class_collision suffix: "Controller"
   #not sure it works for modules
@@ -52,17 +53,50 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
   	gsub_file "#{base_path}/index.html.haml", %r(link_to (.*), new_#{source_model}_path), 
   		"link_to #{'\1'}, new_#{file_name}_path"
   	gsub_file "#{base_path}/_form.html.haml", %r(@#{source_model}(\s)), "@#{file_name+'\1'}"
-  	#TOD: DRY up
+  	#TODO: DRY up
   	gsub_file "#{base_path}/edit.html.haml", %r(#{source_model.humanize}(\s)), "#{file_name.humanize+'\1'}"
   	gsub_file "#{base_path}/new.html.haml", %r(#{source_model.humanize}(\s)), "#{file_name.humanize+'\1'}"
   end
 
-  def handle_routes
-  	
+  def handle_migration
+  	migr_files = Dir["#{Rails.root}/db/migrate/*_create_#{source_model.pluralize}.rb"]
+  	if migr_files.count > 0
+  		@new_migr_file = "#{Time.now.to_s(:number)}_create_#{table_name}.rb"
+  		copy_file migr_files.first, "db/migrate/#{@new_migr_file}"
+  		gsub_file "db/migrate/#{@new_migr_file}", 
+  			"class Create#{source_model.classify.pluralize} < ActiveRecord::Migration",
+  			"class Create#{table_name.classify.pluralize} < ActiveRecord::Migration"
+  	  gsub_file "db/migrate/#{@new_migr_file}", "create_table :#{source_model.pluralize} do |t|",
+  	  	"create_table :#{table_name} do |t|"
+  	end
   end
 
-  def handle_migration
+  def handle_routes
+  	lines = File.readlines("#{Rails.root}/config/routes.rb")
+
+  	#TODO: Make sure this works when multiple resources are defined on the same line
+  	# ie. resources :photos, :books, :videos
+  	rsrc_routes = lines.select { |line| line.match(%r(resources :#{source_model.pluralize})) }
+  	routes_str = rsrc_routes.inject("") do |memo, route|
+  		memo << route.gsub(%r(resources :#{source_model.pluralize}), "resources :#{table_name}")+"\n"
+  	end
+  	inject_into_file "config/routes.rb",
+  		after: ".application.routes.draw do\n" do
+  			routes_str
+  		end
   	
+  	re = %r((\A\s*[get|post|put|patch|delete].*)#{source_model.pluralize}([/|#]))
+  	method_routes = lines.select { |line| line.match(re) }
+  	routes_str = method_routes.inject("") do |memo, route|
+  		#memo << route.gsub(re, "#{'\1'+file_name.pluralize+'\2'}")
+  		# above line didn't work for get '/people/:id' => 'people#show'
+  		# so for now just replace old resource with new
+  		memo << route.gsub(source_model.pluralize, file_name.pluralize)
+  	end
+  	inject_into_file "config/routes.rb",
+  		after: ".application.routes.draw do\n" do
+  			"\n"+routes_str
+  		end
   end
 
   def handle_tests
@@ -71,6 +105,16 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
 
   def handle_assets
   	#???
+  end
+
+  def handle_messages
+  	unless behavior == :revoke || options.test_mode?
+	  	msg = "\nRun new migration [#{@new_migr_file}] now "
+	  	msg +=	" by typing 'y' or type 'n' and run it later at your liesure."
+	  	if yes?(msg, :magenta)
+	  		rake "db:migrate"
+	  	end
+	  end
   end
 
 end
