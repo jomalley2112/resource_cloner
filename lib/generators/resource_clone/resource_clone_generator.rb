@@ -119,28 +119,12 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
 
 end
 
-# invoke  active_record
-# create    db/migrate/20140804165241_create_people.rb
-# create    app/models/person.rb
+
+########Resources items left to (possibly) clone########
+
 # invoke    test_unit
 # create      test/models/person_test.rb
 # create      test/fixtures/people.yml
-# route  get 'people/destroy'
-# route  get 'people/update'
-# route  get 'people/create'
-# route  get 'people/edit'
-# route  get 'people/new'
-# route  get 'people/show'
-# route  get 'people/index'
-#invoke  erb
-#create    app/views/people
-#create    app/views/people/index.html.erb
-#create    app/views/people/show.html.erb
-#create    app/views/people/new.html.erb
-#create    app/views/people/edit.html.erb
-#create    app/views/people/create.html.erb
-#create    app/views/people/update.html.erb
-#create    app/views/people/destroy.html.erb
 #invoke  test_unit
 #create    test/controllers/people_controller_test.rb
 #invoke  helper
