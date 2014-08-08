@@ -9,8 +9,8 @@ Gem::Specification.new do |s|
   s.version     = ResourceCloner::VERSION
   s.authors     = ["John O'Malley"]
   s.email       = ["jom@nycap.rr.com"]
-  s.homepage    = ""
-  s.summary     = "Clones a resources model, controller, views,..."
+  s.homepage    = "https://github.com/jomalley2112/resource_cloner"
+  s.summary     = "Clones a resources model, controller, views, routes..."
   s.description = ""
   s.license     = "MIT"
 
