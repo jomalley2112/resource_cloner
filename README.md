@@ -5,21 +5,50 @@ This generator allows you to quickly clone one of your project's existing resour
 
 #### Usage ####
 - add `gem 'resource_clone'` to your Gemfile
-- run `rails g resource_clone clone_model_name existing_model_name`
+- run `rails g resource_clone person_clone person [--test-mode=true]`
 
+##### Arguments #####
+| Argument | Description                            | Optional? | Default |
+| -------  | -------------------------------------- | --------- | ------- |
+| #1       | singular name of resource to create    | No        | N/A     |
+| #2       | singular name of resource to be cloned | No        | N/A     |
+
+##### Options #####
+| Option       | Description                                                           | Default |
+| ------------ | --------------------------------------------------------------------- | ------- |
+| --test-mode  | When set to true newly generated migrations are not automatically run | false   |
+
+
+#### Resources generated/added ####
+
+##### Model #####
+- Generates `app/models/person_clone.rb`
+
+##### Migration #####
+- Generates a new migration file named `"#{timestamp}_create_person_clones.rb"`
+- Runs migration if user chooses\*. 
+\**Note: If you choose to revoke (destroy) the action later you will need to manually rollback the migration.*
+
+##### Controller #####
+- Generates `app/controllers/person_clones_controller.rb`
 
 ##### Routes #####
+- Adds new lines to `config/routes.rb`
 
+##### Views #####
+- generates any views that person has in `app/views/person_clones`
 
+#### Testing ####
+- run `rake test`
 
-##### TODO #####
+##### Possible Enhancements #####
 - Routes
 	- Not cloning resources that are defined as blocks (nesting other resources)
 	- Not cloning lines that refer to the resource as singular
 	- Definitely missing other formats of drawing routes
-- Tests and Specs
-	- currently it does Not clone these
-- Assets
-	- currently it does Not clone these
-- Helpers
-	- currently it does Not clone these
+- Migration
+	- Automatic rollback on destroy
+- Currently it does Not clone the following:
+	- Tests and Specs
+	- Assets
+	- Helpers
