@@ -42,7 +42,7 @@ This generator allows you to quickly clone one of your project's existing resour
 #### Testing ####
 - run `rake test`
 
-##### Possible Enhancements #####
+#### Possible Enhancements ####
 - Routes
 	- Not cloning resources that are defined as blocks (nesting other resources)
 	- Not cloning lines that refer to the resource as singular
