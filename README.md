@@ -27,7 +27,8 @@ This generator allows you to quickly clone one of your project's existing resour
 ##### Migration #####
 - Generates a new migration file named `"#{timestamp}_create_person_clones.rb"`
 - Runs migration if user chooses\*. 
-\**Note: If you choose to revoke (destroy) the action later you will need to manually rollback the migration.*
+
+\* _Note: If you choose to revoke (destroy) the action later you will need to manually rollback the migration._
 
 ##### Controller #####
 - Generates `app/controllers/person_clones_controller.rb`
@@ -36,7 +37,7 @@ This generator allows you to quickly clone one of your project's existing resour
 - Adds new lines to `config/routes.rb`
 
 ##### Views #####
-- generates any views that person has in `app/views/person_clones`
+- Generates any views that person has in `app/views/person_clones`
 
 #### Testing ####
 - run `rake test`
