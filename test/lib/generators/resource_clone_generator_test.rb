@@ -30,15 +30,20 @@ class ResourceCloneGeneratorTest < Rails::Generators::TestCase
   test "Assert clone model migration is generated correctly" do
   	migr_files = Dir["#{destination_root}/db/migrate/*_create_#{@clone_model.pluralize}.rb"]
   	assert(migr_files.count == 0)
+  	#assert table doesn't exist yet (we are running in test mode so migrations aren't run)
+  	#assert_not(ActiveRecord::Base.connection.table_exists?(@clone_model.pluralize), "table shouldn't exist")
+
   	run_generator @args
+  	
   	migr_files = Dir["#{destination_root}/db/migrate/*_create_#{@clone_model.pluralize}.rb"]
-  	#binding.pry
   	assert(migr_files.count > 0, "no migration file")
   	assert_file migr_files.first do |clone|
 	  	assert_match "class Create#{@clone_model.classify.pluralize} < ActiveRecord::Migration",
 	  	 clone
 	  	assert_match "create_table :#{@clone_model.pluralize} do |t|", clone
 	  end
+	  #assert table was created (we are running in test mode so migrations aren't run)
+	  #assert(ActiveRecord::Base.connection.table_exists?(@clone_model.pluralize), "table doesn't exist")
   end
 	
 	test "Assert clone controller file was generated correctly" do

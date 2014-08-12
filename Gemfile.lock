@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    resource_cloner (0.0.1)
+    resource_cloner (0.5.0)
       rails (~> 4.1.4)
 
 GEM

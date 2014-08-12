@@ -61,7 +61,8 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
   def handle_migration
   	migr_files = Dir["#{Rails.root}/db/migrate/*_create_#{source_model.pluralize}.rb"]
   	if migr_files.count > 0
-  		@new_migr_file = "#{Time.now.to_s(:number)}_create_#{table_name}.rb"
+  		@ts = Time.now.to_s(:number)
+  		@new_migr_file = "#{@ts}_create_#{table_name}.rb"
   		copy_file migr_files.first, "db/migrate/#{@new_migr_file}"
   		gsub_file "db/migrate/#{@new_migr_file}", 
   			"class Create#{source_model.classify.pluralize} < ActiveRecord::Migration",
@@ -112,7 +113,7 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
 	  	msg = "\nRun new migration [#{@new_migr_file}] now "
 	  	msg +=	" by typing 'y' or type 'n' and run it later at your liesure."
 	  	if yes?(msg, :magenta)
-	  		rake "db:migrate"
+	  		rake "db:migrate:up VERSION=#{@ts}"
 	  	end
 	  end
   end
