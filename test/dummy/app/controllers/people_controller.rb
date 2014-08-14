@@ -12,7 +12,7 @@ class PeopleController < ApplicationController
     @person = Person.new(person_params)
     if @person.save
       flash[:success] = "Created Person successfully"
-      redirect_to redir_url
+      redirect_to people_url
     else
       flash[:error] = "Unable to create Person"
       render :new
@@ -27,7 +27,7 @@ class PeopleController < ApplicationController
     @person = Person.find(params[:id])
     if @person.update_attributes(person_params)
       flash[:success] = "Updated Person successfully"
-      redirect_to redir_url
+      redirect_to person_url(@person)
     else
       flash[:error] = "Unable to update Person"
       render :edit

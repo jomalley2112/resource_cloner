@@ -34,11 +34,19 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
     path = File.join(base_path, "#{file_name.pluralize}_controller.rb")
     copy_file("#{Rails.root}/app/controllers/#{source_model.pluralize}_controller.rb", path)
     gsub_file path, source_model.classify.pluralize, class_name.pluralize
+    gsub_file path, %r(([Created|Updated]) #{source_model.humanize}), "#{'\1'} #{file_name.humanize}"
     gsub_file path, source_model.classify, class_name
     gsub_file path, "@#{source_model.pluralize} =", "@#{table_name} ="
     gsub_file path, "@#{source_model} =", "@#{file_name} ="
+    gsub_file path, "@#{source_model}.", "@#{file_name}."
     gsub_file path, ":#{source_model}", ":#{file_name}"
     gsub_file path, "def #{source_model}_params", "def #{file_name}_params"
+    gsub_file path, "(#{source_model}_params)", "(#{file_name}_params)"
+    gsub_file path, "redirect_to #{source_model.pluralize}_url", 
+    								"redirect_to #{file_name.pluralize}_url"
+		gsub_file path, "redirect_to #{source_model}_url(@#{source_model})", 
+    								"redirect_to #{file_name}_url(@#{file_name})"
+    #redirect_to person_url(@person)
   end
 
   def handle_views
@@ -73,20 +81,25 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
   end
 
   def handle_routes
-  	lines = File.readlines("#{Rails.root}/config/routes.rb")
 
   	#TODO: Make sure this works when multiple resources are defined on the same line
   	# ie. resources :photos, :books, :videos
-  	rsrc_routes = lines.select { |line| line.match(%r(resources :#{source_model.pluralize})) }
-  	routes_str = rsrc_routes.inject("") do |memo, route|
-  		memo << route.gsub(%r(resources :#{source_model.pluralize}), "resources :#{table_name}")+"\n"
-  	end
+  	
+  	routes_str = change_lines("#{Rails.root}/config/routes.rb", 
+  																	%r(resources\s*:#{source_model.pluralize}), 
+  																	"resources :#{table_name}")
+  	routes_str += "\n" + change_lines("#{Rails.root}/config/routes.rb", 
+  																	%r(resource\s*:#{source_model}), 
+  																	"resource :#{file_name}")
   	inject_into_file "config/routes.rb",
   		after: ".application.routes.draw do\n" do
   			routes_str
   		end
+
+  	#memo << route.gsub(%r(resource(\s+):#{source_model}), "resource#{'\1'}:#{file_name}")+"\n"
   	
   	re = %r((\A\s*[get|post|put|patch|delete].*)#{source_model.pluralize}([/|#]))
+  	lines = File.readlines("#{Rails.root}/config/routes.rb")
   	method_routes = lines.select { |line| line.match(re) }
   	routes_str = method_routes.inject("") do |memo, route|
   		#memo << route.gsub(re, "#{'\1'+file_name.pluralize+'\2'}")
@@ -117,6 +130,16 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
 	  	end
 	  end
   end
+
+private
+
+	def change_lines(fl_path, reg_exp, replace_with)
+	  all_lines = File.readlines(fl_path)
+	  matching_lines = all_lines.select { |line| line.match(reg_exp) }
+	  matching_lines.inject("") do |memo, ln|
+	    memo << ln.gsub(reg_exp, replace_with)+"\n"
+	  end
+	end
 
 end
 

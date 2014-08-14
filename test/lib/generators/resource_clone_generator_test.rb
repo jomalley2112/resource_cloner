@@ -11,6 +11,7 @@ class ResourceCloneGeneratorTest < Rails::Generators::TestCase
   	@orig_model = "person"
   	@clone_model = "cloned_person"
   	@args = [@clone_model, @orig_model, "--test-mode=true"]
+  	puts "rails g resource_clone #{@args.join(" ")}"
   	prepare_destination
   	copy_dummy_files
   end
@@ -50,15 +51,24 @@ class ResourceCloneGeneratorTest < Rails::Generators::TestCase
   	assert_no_file "/app/controllers/#{@clone_model.pluralize}_controller.rb"
   	run_generator @args
   	assert_file "app/controllers/#{@clone_model.pluralize}_controller.rb" do |clone| 
-  		assert_match "class #{@clone_model.classify.pluralize}Controller < ApplicationController", clone
   		assert_no_match %r(@#{@orig_model.pluralize} \=), clone
-  		assert_no_match %r(\s#{@orig_model.classify}\s), clone
   		assert_no_match %r(@#{@orig_model} \=), clone
+  		assert_no_match %r(@#{@orig_model}\.), clone #@person.
   		assert_no_match %r(def #{@orig_model}_params), clone
+  		assert_no_match %r(\(#{@orig_model}_params\)), clone #using model_params method
+  		assert_no_match %r([Created|Updated] #{@orig_model.humanize}), clone
+  		assert_no_match %r(redirect_to #{@orig_model.pluralize}_url), clone
+  		assert_no_match %r(redirect_to #{@orig_model}_url\(@#{@orig_model}\)), clone
+  		
+  		assert_match "class #{@clone_model.classify.pluralize}Controller < ApplicationController", clone
   		assert_match %r(@#{@clone_model.pluralize} \=), clone
-  		assert_match %r(\s#{@clone_model.classify}\s), clone
   		assert_match %r(@#{@clone_model} \=), clone
-  		assert_match %r(def #{@clone_model}_params), clone
+  		assert_match %r(@#{@clone_model}\.), clone
+			assert_match %r(def #{@clone_model}_params), clone
+  		assert_match %r(\(#{@clone_model}_params\)), clone
+  		assert_match %r([Created|Updated] #{@clone_model.humanize}), clone
+  		assert_match %r(redirect_to #{@clone_model.pluralize}_url), clone
+  		assert_match %r(redirect_to #{@clone_model}_url\(@#{@clone_model}\)), clone
   	end
   end
 
@@ -106,6 +116,7 @@ class ResourceCloneGeneratorTest < Rails::Generators::TestCase
 
   	assert_file "config/routes.rb" do |routes|
   		assert_no_match "resources :#{@clone_model.pluralize}", routes
+  		assert_no_match %r(resource\s*\:#{@clone_model}), routes
   		assert_no_match new_routes_block, routes
   	end
   	
@@ -113,6 +124,7 @@ class ResourceCloneGeneratorTest < Rails::Generators::TestCase
   	
   	assert_file "config/routes.rb" do |routes|
   		assert_match "resources :#{@clone_model.pluralize}", routes
+  		assert_match %r(resource\s*:#{@clone_model}), routes
   		assert_match new_routes_block, routes
   	end
   	
