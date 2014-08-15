@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
 
-    
   
 ############ Keep stuff after this line ###########
   

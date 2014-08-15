@@ -92,8 +92,11 @@ class ResourceCloneGeneratorTest < Rails::Generators::TestCase
   	end
   	assert_file "app/views/#{@clone_model.pluralize}/_form.html.haml" do |clone|
   		assert_no_match %r(@#{@orig_model}\s), clone
-  		#Links
   		assert_match %r(@#{@clone_model}\s), clone
+  		#Links
+  		assert_no_match %r(\s+#{@orig_model.pluralize}_path), clone # people_path
+  		assert_match %r(\s+#{@clone_model.pluralize}_path), clone
+  		
   	end
   	assert_file "app/views/#{@clone_model.pluralize}/edit.html.haml" do |clone|
   		assert_no_match %r(\s#{@orig_model.humanize}\s), clone

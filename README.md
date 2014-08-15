@@ -43,9 +43,11 @@ This generator allows you to quickly clone one of your project's existing resour
 
 #### Testing ####
 - run `rake test`
+_Note: You may want to manually clean up the routes file after testing. At this point destroy doesn't clean up the injected lines_
 
 #### Possible Enhancements ####
 - Routes
+	- Running destroy should clean up the routes file
 	- Not cloning resources that are defined as blocks (nesting other resources)
 	- Not cloning lines that refer to the resource as singular
 	- Definitely missing other formats of drawing routes

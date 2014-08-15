@@ -46,7 +46,6 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
     								"redirect_to #{file_name.pluralize}_url"
 		gsub_file path, "redirect_to #{source_model}_url(@#{source_model})", 
     								"redirect_to #{file_name}_url(@#{file_name})"
-    #redirect_to person_url(@person)
   end
 
   def handle_views
@@ -61,9 +60,9 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
   	gsub_file "#{base_path}/index.html.haml", %r(link_to (.*), new_#{source_model}_path), 
   		"link_to #{'\1'}, new_#{file_name}_path"
   	gsub_file "#{base_path}/_form.html.haml", %r(@#{source_model}(\s)), "@#{file_name+'\1'}"
-  	#TODO: DRY up
-  	gsub_file "#{base_path}/edit.html.haml", %r(#{source_model.humanize}(\s)), "#{file_name.humanize+'\1'}"
-  	gsub_file "#{base_path}/new.html.haml", %r(#{source_model.humanize}(\s)), "#{file_name.humanize+'\1'}"
+  	gsub_file "#{base_path}/_form.html.haml", %r((\s)+#{source_model.pluralize}\_path), "#{'\1'+file_name.pluralize}_path"
+		replace_human_name("#{base_path}/edit.html.haml")
+  	replace_human_name("#{base_path}/new.html.haml")
   end
 
   def handle_migration
@@ -81,7 +80,7 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
   end
 
   def handle_routes
-
+		#TODO: See why destroy does doesn't remove the injected routes
   	#TODO: Make sure this works when multiple resources are defined on the same line
   	# ie. resources :photos, :books, :videos
   	
@@ -95,15 +94,13 @@ class ResourceCloneGenerator < Rails::Generators::NamedBase
   		after: ".application.routes.draw do\n" do
   			routes_str
   		end
-
-  	#memo << route.gsub(%r(resource(\s+):#{source_model}), "resource#{'\1'}:#{file_name}")+"\n"
-  	
+ 	
   	re = %r((\A\s*[get|post|put|patch|delete].*)#{source_model.pluralize}([/|#]))
   	lines = File.readlines("#{Rails.root}/config/routes.rb")
   	method_routes = lines.select { |line| line.match(re) }
   	routes_str = method_routes.inject("") do |memo, route|
   		#memo << route.gsub(re, "#{'\1'+file_name.pluralize+'\2'}")
-  		# above line didn't work for get '/people/:id' => 'people#show'
+  		#TODO: above line didn't work for get '/people/:id' => 'people#show'
   		# so for now just replace old resource with new
   		memo << route.gsub(source_model.pluralize, file_name.pluralize)
   	end
@@ -140,7 +137,9 @@ private
 	    memo << ln.gsub(reg_exp, replace_with)+"\n"
 	  end
 	end
-
+	def replace_human_name(file_path)
+		gsub_file file_path, %r(#{source_model.humanize}(\s)), "#{file_name.humanize+'\1'}"
+	end
 end
 
 
