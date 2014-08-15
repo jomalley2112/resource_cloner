@@ -7,7 +7,7 @@ This generator allows you to quickly clone one of your project's existing resour
 
 #### Usage ####
 - add `gem 'resource_clone'` to your Gemfile
-- run `rails g resource_clone person_clone person [--test-mode=true]`
+- run `rails g resource_clone zombie person [--test-mode=true]`
 
 ##### Arguments #####
 | Argument | Description                            | Optional? | Default |
@@ -22,24 +22,25 @@ This generator allows you to quickly clone one of your project's existing resour
 
 
 #### Resources generated/added ####
+(for example usage:  `rails g resource_clone zombie person`)
 
 ##### Model #####
-- Generates `app/models/person_clone.rb`
+- Generates `app/models/zombie.rb`
 
 ##### Migration #####
-- Generates a new migration file named `"#{timestamp}_create_person_clones.rb"`
+- Generates a new migration file named `"#{timestamp}_create_zombies.rb"`
 - Runs migration if user chooses\*. 
 
 \* _Note: If you choose to revoke (destroy) the action later you will need to manually rollback the migration._
 
 ##### Controller #####
-- Generates `app/controllers/person_clones_controller.rb`
+- Generates `app/controllers/zombies_controller.rb`
 
 ##### Routes #####
 - Adds new lines to `config/routes.rb`
 
 ##### Views #####
-- Generates any views that person has in `app/views/person_clones`
+- Generates any views that person has in `app/views/zombies`
 
 #### Testing ####
 - run `rake test`
